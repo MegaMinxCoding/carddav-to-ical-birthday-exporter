@@ -1,11 +1,16 @@
 import dav from 'dav';
 import dayjs from 'dayjs';
-import fs from 'fs';
-import ical, { ICalCalendarMethod } from 'ical-generator';
 import ics from 'ics';
 
 
-
+/**
+ * Calculates the next birthday and age from a birthday string. Birthday string can be in the following formats:
+ * - YYYY-MM-DD
+ * - --MMDD
+ * - YYYYMMDD
+ * @param {string} bdayString - Birthday string
+ * @returns {{nextBirthday: Date, age: number}} - Next birthday and age
+ */
 function getNextBirthday(bdayString) {
     const today = dayjs();
     let birthday
@@ -22,9 +27,15 @@ function getNextBirthday(bdayString) {
     return { nextBirthday: nextBirthday.toDate(), age : nextBirthday.diff(birthdayDate, 'years') };
 }
 
+/**
+ * Fetches contacts from the CardDAV server. Returns an array of contacts with their full name, birthday, next birthday and age.
+ * Requires the following environment variables:
+ * - CARD_DAV_URL
+ * - USERNAME
+ * - PASSWORD
+ * @returns {Promise<Array<{fullName: string, birthday: string, nextBirthday: Date, age: number}>>} - Array of contacts
+ */
 async function fetchContacts() {
-
-    
     try {
         // Create a new DAV client
         const client = new dav.Client(
@@ -96,7 +107,11 @@ async function fetchContacts() {
 
 
 
-
+/**
+ * Generates an ICS string from an array of contacts. Compatible with Google Calendar.
+ * @param {Array<{fullName: string, birthday: string, nextBirthday: Date, age: number}>} contacts - Array of contacts (@see fetchContacts)
+ * @returns {string} - ICS string
+ */
 const getICSString = (contacts) => {
     return ics.createEvents(contacts.map(contact => ({
         title: `🎁 Geburtstag von ${contact.fullName} (wird ${contact.age} Jahre)`,

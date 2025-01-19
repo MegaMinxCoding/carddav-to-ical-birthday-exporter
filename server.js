@@ -8,11 +8,17 @@ import express from 'express';
 import dotenv from 'dotenv';
 
 dotenv.config();
-
 const app = express();
+
+/**
+ * Local cache to store the ICS string.
+ */
 const localCache = new cache({ stdTTL: 60 * 60 * 24 }); // 1 day
 const CACHE_KEY = 'icalString';
 
+/**
+ * Updates the local cache with the ICS string.
+ */
 const updateCache = () => {
     console.log((new Date()).toLocaleTimeString("de-DE", { timeZone: 'Europe/Berlin' }), ' | Fetching contacts...');
     fetchContacts().then(contacts => {
@@ -25,8 +31,11 @@ const updateCache = () => {
     });
 }
 
+/**
+ * Cron job to update the cache every 3 hours.
+ */
 new CronJob(
-	'0 */1 * * *', // every hour
+	'0 */3 * * *', // every 3 hours
 	function () {
         updateCache()
 	}, // onTick
@@ -35,10 +44,9 @@ new CronJob(
 	'Europe/Berlin' // timeZone
 );
 
-
-
-
-
+/**
+ * Endpoint to get the ICS string.
+ */
 app.get('/calendar.ics', (req, res) => {
     const icalString = localCache.get(CACHE_KEY);
     if (icalString) {
@@ -50,7 +58,9 @@ app.get('/calendar.ics', (req, res) => {
 });
 
 
-
+/**
+ * Start the server and update the cache.
+ */
 app.listen(process.env.PORT || 3000, () => {
     console.log('Server running at port ' + (process.env.PORT || 3000) + '- Updating cache...');
     updateCache();
