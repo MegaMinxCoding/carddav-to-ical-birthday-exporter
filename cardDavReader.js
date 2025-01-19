@@ -114,7 +114,7 @@ async function fetchContacts() {
  */
 const getICSString = (contacts) => {
     return ics.createEvents(contacts.map(contact => ({
-        title: `🎁 Geburtstag von ${contact.fullName} (wird ${contact.age} Jahre)`,
+        title: `🎁 ${contact.fullName} (wird ${contact.age} Jahre)`,
         description: `🎁 Geburtstag von ${contact.fullName} (wird ${contact.age} Jahre)`,
         start: [
             contact.nextBirthday.getFullYear(),
