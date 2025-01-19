@@ -16,7 +16,7 @@ function getNextBirthday(bdayString) {
     }
     const birthdayDate = dayjs(birthday);
     let nextBirthday = birthdayDate;
-    while (nextBirthday.isBefore(today)) {
+    while (nextBirthday.isBefore(today, 'day')) {
         nextBirthday = nextBirthday.add(1, 'year');
     }
     return { nextBirthday: nextBirthday.toDate(), age : nextBirthday.diff(birthdayDate, 'years') };
@@ -94,30 +94,7 @@ async function fetchContacts() {
 
 
 
-const getICalString = (contacts) => {
-    const calendar = ical({
-        name: 'Birthdays',
-        timezone: 'Europe/Berlin'
-    });
 
-    calendar.method(ICalCalendarMethod.PUBLISH);
-
-    contacts.forEach(contact => {
-        const event = calendar.createEvent({
-            allDay: true,
-            busyStatus: 'FREE',
-            start: contact.nextBirthday,
-            summary: `🎁 Geburtstag von ${contact.fullName} (wird ${contact.age} Jahre)`,
-            description: `🎁 Geburtstag von ${contact.fullName} (wird ${contact.age} Jahre)`
-        });
-        event.createAlarm({
-            type: 'display',
-            trigger: dayjs(contact.nextBirthday).set('hour', 8).set('minute', 0).toDate()
-        });
-    });
-
-    return calendar.toString();
-}
 
 
 const getICSString = (contacts) => {
