@@ -1,9 +1,6 @@
-import { fetchContacts, getICalString, getICSString } from './cardDavReader.js';
+import { fetchContacts, getICSString } from './cardDavReader.js';
 import { CronJob } from 'cron';
-import fs from 'node:fs';
-import http from 'node:http';
 import cache from 'node-cache';
-import dayjs from 'dayjs';
 import express from 'express';
 import dotenv from 'dotenv';
 

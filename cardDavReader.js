@@ -144,7 +144,6 @@ const getICSString = (contacts) => {
 
 export {
     fetchContacts,
-    getICalString,
     getICSString
 }
 
