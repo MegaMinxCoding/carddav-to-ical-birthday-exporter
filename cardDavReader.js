@@ -128,6 +128,8 @@ const getICSString = (contacts) => {
         ],
         startInputType: 'utc',
         status: 'CONFIRMED',
+        busyStatus: 'FREE',
+        transp: 'TRANSPARENT',
         alarms: [
             {
                 action: 'display',
