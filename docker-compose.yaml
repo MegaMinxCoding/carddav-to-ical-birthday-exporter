@@ -1,0 +1,18 @@
+version: '3.8'  # Specify the version of Docker Compose
+
+services:
+  birthday-calendar-exporter:
+    container_name: birthday-calendar-exporter
+    build:
+      context: .  # The path to your project directory
+      dockerfile: Dockerfile  # Specify the Dockerfile if it's not named 'Dockerfile'
+    ports:
+      - "5005:3000"  # Map the container's port to the host
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - docker_megaberry-net
+networks: 
+  docker_megaberry-net:
+    external: true
