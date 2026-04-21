@@ -1,20 +1,17 @@
-# Use the official Node.js image as the base image
-FROM node:20-alpine
+FROM node:24-alpine
 
-# Set the working directory inside the container
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json to the working directory
+# Install dependencies first for better layer caching
 COPY package*.json ./
+RUN npm ci --omit=dev
 
-# Install the dependencies
-RUN npm install
-
-# Copy the rest of the application code to the working directory
+# Copy application source
 COPY . .
 
-# Expose port 3000
+# Run as unprivileged user
+USER node
+
 EXPOSE 3000
 
-# Command to run the application
 CMD ["node", "server.js"]
