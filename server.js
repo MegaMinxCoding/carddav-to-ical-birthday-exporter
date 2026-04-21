@@ -8,19 +8,20 @@ dotenv.config();
 const app = express();
 
 /**
- * Local cache to store the ICS string.
+ * Local cache to store plain and notification ICS strings.
  */
 const localCache = new cache({ stdTTL: 60 * 60 * 24 }); // 1 day
-const CACHE_KEY = 'icalString';
+const CACHE_KEY_PLAIN = 'icalString';
+const CACHE_KEY_NOTIFY = 'icalStringWithNotification';
 
 /**
- * Updates the local cache with the ICS string.
+ * Updates the local cache with both ICS variants (one CardDAV fetch).
  */
 const updateCache = () => {
     console.log((new Date()).toLocaleTimeString("de-DE", { timeZone: 'Europe/Berlin' }), ' | Fetching contacts...');
     fetchContacts().then(contacts => {
-        const calendarString = getICSString(contacts);
-        localCache.set(CACHE_KEY, calendarString);
+        localCache.set(CACHE_KEY_PLAIN, getICSString(contacts, { withNotification: false }));
+        localCache.set(CACHE_KEY_NOTIFY, getICSString(contacts, { withNotification: true }));
 
         console.log((new Date()).toLocaleTimeString("de-DE", { timeZone: 'Europe/Berlin' }), ' | Contacts fetched and stored in cache...');
     }).catch(error => {
@@ -45,7 +46,9 @@ new CronJob(
  * Endpoint to get the ICS string.
  */
 app.get('/calendar.ics', (req, res) => {
-    const icalString = localCache.get(CACHE_KEY);
+    const withNotification = req.query.withNotification === 'true';
+    const key = withNotification ? CACHE_KEY_NOTIFY : CACHE_KEY_PLAIN;
+    const icalString = localCache.get(key);
     if (icalString) {
         res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
         res.send(icalString.value);

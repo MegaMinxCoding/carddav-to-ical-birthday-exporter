@@ -17,7 +17,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "ical-generator": "^8.1.1",
-    "ics": "^3.8.1",
+    "ics": "^3.11.0",
     "node-cache": "^5.1.2",
     "nodemon": "^3.1.9",
     "tsdav": "^2.1.3",

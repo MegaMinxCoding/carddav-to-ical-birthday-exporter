@@ -12,7 +12,7 @@ import ics from 'ics';
  * @returns {{nextBirthday: Date, age: number}} - Next birthday and age
  */
 function getNextBirthday(bdayString) {
-    const today = dayjs();
+    const cutoff = dayjs().subtract(14, 'day');
     let birthday
     if (bdayString.startsWith('--')) {
         birthday = dayjs().year().toString() + bdayString.substr(2, 2) + bdayString.substr(4, 2);
@@ -21,7 +21,7 @@ function getNextBirthday(bdayString) {
     }
     const birthdayDate = dayjs(birthday);
     let nextBirthday = birthdayDate;
-    while (nextBirthday.isBefore(today, 'day')) {
+    while (nextBirthday.isBefore(cutoff, 'day')) {
         nextBirthday = nextBirthday.add(1, 'year');
     }
     return { nextBirthday: nextBirthday.toDate(), age : nextBirthday.diff(birthdayDate, 'years') };
@@ -110,9 +110,10 @@ async function fetchContacts() {
 /**
  * Generates an ICS string from an array of contacts. Compatible with Google Calendar.
  * @param {Array<{fullName: string, birthday: string, nextBirthday: Date, age: number}>} contacts - Array of contacts (@see fetchContacts)
+ * @param {{ withNotification?: boolean }} [options]
  * @returns {string} - ICS string
  */
-const getICSString = (contacts) => {
+const getICSString = (contacts, { withNotification = false } = {}) => {
     return ics.createEvents(contacts.map(contact => ({
         title: `🎁 ${contact.fullName} (wird ${contact.age} Jahre)`,
         description: `🎁 Geburtstag von ${contact.fullName} (wird ${contact.age} Jahre)`,
@@ -130,12 +131,20 @@ const getICSString = (contacts) => {
         status: 'CONFIRMED',
         busyStatus: 'FREE',
         transp: 'TRANSPARENT',
-        alarms: [
-            {
-                action: 'display',
-                trigger: dayjs(contact.nextBirthday).set('hour', 8).set('minute', 0).toDate()
-            }
-        ],
+        ...(withNotification && {
+            alarms: [
+                {
+                    action: 'display',
+                    description: 'Geburtstag von ' + contact.fullName,
+                    trigger: [
+                        contact.nextBirthday.getFullYear(),
+                        contact.nextBirthday.getMonth() + 1,
+                        contact.nextBirthday.getDate(),
+                        8, 0
+                    ]
+                }
+            ]
+        }),
         calName: 'Geburtstage'
     })));
 }
